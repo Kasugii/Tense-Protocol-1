@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TENSE PROTOCOL // LANG-S-1001</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,700;0,900;1,600;1,800&family=Share+Tech+Mono&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f; --bg2:#101018; --panel:#14141f; --panel2:#1a1a2a;
+  --line:#2a2a3d; --txt:#e8e8f0; --dim:#8a8aa0;
+  --acid:#c8f135; --cyan:#35e0f1; --mag:#f135a8; --orange:#ff8c35; --red:#ff4757; --green:#2ed573;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;min-height:100vh;
+  background-image:
+    repeating-linear-gradient(45deg,transparent 0 38px,rgba(200,241,53,.015) 38px 40px),
+    radial-gradient(ellipse at 80% -10%,rgba(53,224,241,.07),transparent 50%),
+    radial-gradient(ellipse at 10% 110%,rgba(241,53,168,.05),transparent 50%);}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;
+  background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--line);
+  clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));margin-bottom:18px}
+.logo{font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:30px;letter-spacing:1px;line-height:.9}
+.logo span{color:var(--acid)}
+.logo small{display:block;font-family:'Share Tech Mono';font-style:normal;font-weight:400;font-size:10px;color:var(--dim);letter-spacing:3px;margin-top:4px}
+.stats{display:flex;gap:10px}
+.stat{text-align:center;padding:6px 14px;background:var(--bg);border:1px solid var(--line)}
+.stat b{display:block;font-family:'Barlow Condensed';font-weight:900;font-size:22px;color:var(--acid)}
+.stat.s2 b{color:var(--cyan)} .stat.s3 b{color:var(--mag)}
+.stat i{font-style:normal;font-family:'Share Tech Mono';font-size:9px;color:var(--dim);letter-spacing:1px}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tab{flex:1;min-width:140px;cursor:pointer;padding:13px 10px;text-align:center;background:var(--panel);border:1px solid var(--line);
+  font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:18px;letter-spacing:1px;color:var(--dim);
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:.15s;user-select:none}
+.tab:hover{color:var(--txt);border-color:var(--acid)}
+.tab.on{background:var(--acid);color:#0a0a0f;border-color:var(--acid)}
+.tab.on.t2{background:var(--cyan)} .tab.on.t3{background:var(--mag)}
+
+.panel{display:none}.panel.on{display:block;animation:slide .25s ease}
+@keyframes slide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* CARD */
+.card{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);padding:24px;
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));position:relative;margin-bottom:14px}
+.tag{display:inline-block;font-family:'Share Tech Mono';font-size:10px;letter-spacing:2px;color:#0a0a0f;background:var(--acid);padding:3px 10px;margin-bottom:14px}
+.tag.c{background:var(--cyan)} .tag.m{background:var(--mag);color:#fff}
+.sentence{font-size:22px;font-weight:600;line-height:1.5;margin-bottom:20px}
+.sentence .blank{color:var(--acid);border-bottom:2px dashed var(--acid);padding:0 4px}
+.sentence b.hl{color:var(--cyan);font-weight:800}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.opts{grid-template-columns:1fr}.sentence{font-size:18px}.logo{font-size:24px}}
+.opt{cursor:pointer;padding:13px 16px;background:var(--bg);border:1px solid var(--line);font-size:15px;font-weight:600;transition:.12s;
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.opt:hover{border-color:var(--acid);transform:translateX(3px)}
+.opt .k{font-family:'Share Tech Mono';color:var(--dim);margin-right:8px;font-size:12px}
+.opt.good{background:rgba(46,213,115,.12);border-color:var(--green);color:var(--green)}
+.opt.bad{background:rgba(255,71,87,.12);border-color:var(--red);color:var(--red)}
+.opt.lock{pointer-events:none;opacity:.55}
+.opt.good,.opt.bad{opacity:1}
+
+.explain{margin-top:18px;padding:16px;background:var(--bg);border-left:3px solid var(--cyan);display:none;font-size:14px;line-height:1.65}
+.explain.show{display:block;animation:slide .2s}
+.explain .formula{font-family:'Share Tech Mono';color:var(--acid);font-size:13px;display:block;margin-bottom:6px}
+.explain .clue{color:var(--orange);font-weight:700}
+
+.next{margin-top:16px;display:none;cursor:pointer;background:var(--acid);color:#0a0a0f;border:none;padding:13px 34px;
+  font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:18px;letter-spacing:2px;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+.next.show{display:inline-block}
+.next:hover{filter:brightness(1.15)}
+
+.fb{font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:24px;margin-top:14px;display:none}
+.fb.show{display:block;animation:pop .3s}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+.fb.win{color:var(--green)} .fb.lose{color:var(--red)}
+
+/* TIPS */
+.tip{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);margin-bottom:10px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.tip-h{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 18px;user-select:none}
+.tip-h:hover{background:rgba(200,241,53,.04)}
+.tip-num{font-family:'Share Tech Mono';font-size:11px;color:#0a0a0f;background:var(--mag);padding:2px 8px;color:#fff}
+.tip-h h3{font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-size:20px;letter-spacing:.5px;flex:1}
+.tip-h .arr{color:var(--dim);transition:.2s;font-size:12px}
+.tip.open .arr{transform:rotate(90deg);color:var(--acid)}
+.tip-b{display:none;padding:0 18px 18px;font-size:14px;line-height:1.7}
+.tip.open .tip-b{display:block}
+.tip-b .f{font-family:'Share Tech Mono';font-size:13px;color:var(--acid);background:var(--bg);padding:8px 12px;display:block;margin:8px 0;border-left:2px solid var(--acid)}
+.tip-b .ex{color:var(--cyan);font-style:italic}
+.tip-b .mk{color:var(--orange);font-weight:700}
+.tip-b .warn{color:var(--mag);font-weight:700}
+.tip-b ul{margin:6px 0 6px 20px}
+
+.progress{height:4px;background:var(--bg);margin-bottom:18px;overflow:hidden}
+.progress div{height:100%;background:linear-gradient(90deg,var(--acid),var(--cyan));width:0%;transition:.4s}
+
+.combo{position:fixed;top:14px;right:14px;font-family:'Barlow Condensed';font-style:italic;font-weight:900;font-size:34px;
+  color:var(--orange);text-shadow:0 0 18px rgba(255,140,53,.6);opacity:0;pointer-events:none;z-index:99}
+.combo.go{animation:comboA .8s ease}
+@keyframes comboA{0%{opacity:0;transform:scale(.5) rotate(-8deg)}25%{opacity:1;transform:scale(1.2) rotate(3deg)}70%{opacity:1}100%{opacity:0;transform:translateY(-25px)}}
+
+.intro{font-family:'Share Tech Mono';font-size:11px;color:var(--dim);letter-spacing:1px;margin-bottom:14px;line-height:1.7}
+.intro b{color:var(--acid)}
+</style>
+</head>
+<body>
+<div class="combo" id="combo">COMBO x2</div>
+<div class="wrap">
+
+<header>
+  <div class="logo">TENSE<span>//</span>PROTOCOL<small>LANG-S-1001 · EXAM PREP · ULB</small></div>
+  <div class="stats">
+    <div class="stat"><b id="stXp">0</b><i>XP</i></div>
+    <div class="stat s2"><b id="stAcc">--%</b><i>PRÉCISION</i></div>
+    <div class="stat s3"><b id="stStreak">0</b><i>STREAK</i></div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab on" data-p="p1">⚡ IDENTIFIER LE TEMPS</div>
+  <div class="tab t2" data-p="p2">🎯 QCM TYPE EXAMEN</div>
+  <div class="tab t3" data-p="p3">📖 TIPS DE SURVIE</div>
+</div>
+
+<!-- ============ MODE 1 : IDENTIFY ============ -->
+<div class="panel on" id="p1">
+  <div class="intro">&gt; MISSION : identifie le temps du verbe <b>en surbrillance</b>. Repère les <b>indices temporels</b> (yesterday, since, while...) — c'est eux qui trahissent la réponse.</div>
+  <div class="progress"><div id="prog1"></div></div>
+  <div class="card">
+    <span class="tag">TENSE SCAN</span>
+    <div class="sentence" id="q1s"></div>
+    <div class="opts" id="q1o"></div>
+    <div class="fb" id="q1f"></div>
+    <div class="explain" id="q1e"></div>
+    <button class="next" id="q1n">SUIVANT ▸</button>
+  </div>
+</div>
+
+<!-- ============ MODE 2 : MCQ ============ -->
+<div class="panel" id="p2">
+  <div class="intro">&gt; MISSION : QCM dans le format <b>exact de ton examen de janvier</b>. Choisis la forme verbale correcte pour compléter la phrase.</div>
+  <div class="progress"><div id="prog2"></div></div>
+  <div class="card">
+    <span class="tag c">EXAM SIMULATION</span>
+    <div class="sentence" id="q2s"></div>
+    <div class="opts" id="q2o"></div>
+    <div class="fb" id="q2f"></div>
+    <div class="explain" id="q2e"></div>
+    <button class="next" id="q2n">SUIVANT ▸</button>
+  </div>
+</div>
+
+<!-- ============ MODE 3 : TIPS ============ -->
+<div class="panel" id="p3">
+  <div class="intro">&gt; ARCHIVE : ta fiche de grammaire, version augmentée. Clique pour déployer chaque module.</div>
+  <div id="tips"></div>
+</div>
+
+</div>
+
+<script>
+// ===================== DATA : IDENTIFY THE TENSE =====================
+var T = {
+  PS:"Present Simple", PC:"Present Continuous", PP:"Present Perfect", PPC:"Present Perfect Continuous",
+  PAS:"Past Simple", PAC:"Past Continuous", PAP:"Past Perfect",
+  FUT:"Futur (will)", GOI:"Futur (going to)", PASS:"Voix Passive", CD2:"Conditionnel 2 (if + past)", CD3:"Conditionnel 3 (if + past perfect)", MOD:"Modal + perfect (regret)"
+};
+// each: s = sentence (HTML, verb in <b class=hl>), a = key of T, opts = 4 keys, why, clue, formula
+var Q1 = [
+ {s:'I <b class="hl">visited</b> London last year.', a:'PAS', o:['PAS','PP','PAC','PS'],
+  clue:'last year', f:'verbe + ED / irrégulier', why:"Action terminée à un moment précis du passé. \"Last year\", \"yesterday\", \"in 2010\" = Past Simple obligatoire."},
+ {s:'She <b class="hl">is working</b> now.', a:'PC', o:['PC','PS','PPC','PAC'],
+  clue:'now', f:'TO BE (présent) + verbe-ING', why:"Action en train de se passer maintenant. \"Now\", \"at the moment\" = Present Continuous."},
+ {s:'I <b class="hl">have lived</b> here for years.', a:'PP', o:['PP','PAS','PAP','PPC'],
+  clue:'for years', f:'HAVE/HAS + participe passé', why:"Action passée avec lien au présent (j'y vis encore). \"For + durée\" avec lien au présent = Present Perfect."},
+ {s:'I <b class="hl">have been studying</b> since 8 a.m.', a:'PPC', o:['PPC','PP','PC','PAC'],
+  clue:'since 8 a.m.', f:'HAVE/HAS BEEN + verbe-ING', why:"Action commencée dans le passé qui continue, accent sur la DURÉE. \"Since\" + been + -ing = Present Perfect Continuous."},
+ {s:'She <b class="hl">had left</b> before I arrived.', a:'PAP', o:['PAP','PAS','PP','PAC'],
+  clue:'before', f:'HAD + participe passé', why:"Action AVANT une autre action passée. \"Before\", \"after\" entre deux actions passées = Past Perfect pour la plus ancienne."},
+ {s:'I <b class="hl">was studying</b> when she called.', a:'PAC', o:['PAC','PAS','PPC','PC'],
+  clue:'when + past simple', f:'WAS/WERE + verbe-ING', why:"Une action en cours (was studying) interrompue par une autre (called). \"While\", \"when\" = Past Continuous + Past Simple."},
+ {s:'I <b class="hl">will go</b> to the meeting, OK I decide it right now.', a:'FUT', o:['FUT','GOI','PS','PC'],
+  clue:'décision sur le moment', f:'WILL + base verbale', why:"Décision prise SUR LE MOMENT = will. Plan déjà décidé = going to."},
+ {s:'I <b class="hl">am going to study</b> tonight, it is planned.', a:'GOI', o:['GOI','FUT','PC','PS'],
+  clue:'plan / intention', f:'BE GOING TO + verbe', why:"Plan ou intention déjà décidée, ou prédiction basée sur des indices = going to."},
+ {s:'The homework <b class="hl">was finished</b> by the student.', a:'PASS', o:['PASS','PAS','PAP','PP'],
+  clue:'by + agent', f:'TO BE + participe passé (+ by)', why:"Le sujet SUBIT l'action. BE + participe passé = voix passive. \"By\" introduit qui fait l'action."},
+ {s:'If it rains, we <b class="hl">will have to cancel</b> the barbecue.', a:'FUT', o:['FUT','CD2','GOI','PS'],
+  clue:'if + present', f:'If + present → WILL', why:"Conditionnel 1 (situation réelle/possible) : if + présent → will. PAS de will dans la partie \"if\" !"},
+ {s:'If you found a wallet, <b class="hl">would</b> you <b class="hl">hand</b> it in?', a:'CD2', o:['CD2','CD3','FUT','PAS'],
+  clue:'if + past simple', f:'If + past simple → WOULD', why:"Conditionnel 2 (situation imaginaire au présent) : if + past simple → would + base verbale."},
+ {s:'If only I had waited, I <b class="hl">wouldn\u2019t have missed</b> her.', a:'CD3', o:['CD3','CD2','PAP','MOD'],
+  clue:'if + past perfect', f:'If + past perfect → WOULD HAVE + p.p.', why:"Conditionnel 3 = REGRET sur le passé : if + past perfect → would have + participe passé."},
+ {s:'You <b class="hl">shouldn\u2019t have said</b> that.', a:'MOD', o:['MOD','CD3','PP','PAP'],
+  clue:'critique du passé', f:'SHOULD(N\u2019T) HAVE + participe passé', why:"Critique/regret d'une action passée : should have / shouldn't have + participe passé."},
+ {s:'Water <b class="hl">boils</b> at 100 degrees.', a:'PS', o:['PS','PC','PP','FUT'],
+  clue:'vérité générale', f:'infinitif sans TO (+S à la 3e pers.)', why:"Vérité générale, habitude, fait permanent = Present Simple. \"Always, every day, usually\" aussi."},
+ {s:'We <b class="hl">haven\u2019t had</b> a training manager for a long time.', a:'PP', o:['PP','PAS','PAP','PPC'],
+  clue:'for a long time (et toujours pas)', f:'HAVE/HAS + participe passé', why:"Q48 de ton examen ! Situation qui dure jusqu'à maintenant → Present Perfect + FOR. Réponse: \"haven't had / for\"."},
+ {s:'They <b class="hl">were watching</b> TV while I <b class="hl">was cooking</b>.', a:'PAC', o:['PAC','PAS','PC','PAP'],
+  clue:'while', f:'WAS/WERE + verbe-ING', why:"Deux actions parallèles en cours dans le passé : \"while\" = Past Continuous des deux côtés."},
+ {s:'She <b class="hl">has just finished</b> her essay.', a:'PP', o:['PP','PAS','PAP','PC'],
+  clue:'just', f:'HAVE/HAS + participe passé', why:"\"Just, already, yet, since, for, over the past few years\" = mots-signaux du Present Perfect."},
+ {s:'By the time we arrived, the film <b class="hl">had started</b>.', a:'PAP', o:['PAP','PAS','PP','PAC'],
+  clue:'by the time + passé', f:'HAD + participe passé', why:"Le film a commencé AVANT notre arrivée : deux actions passées, la plus ancienne = Past Perfect."},
+ {s:'Our products <b class="hl">are made</b> in Belgium.', a:'PASS', o:['PASS','PS','PC','PP'],
+  clue:'le sujet subit', f:'AM/IS/ARE + participe passé', why:"Present passive : les produits ne font pas l'action, ils la subissent. BE (présent) + p.p."},
+ {s:'I <b class="hl">have been working</b> here since 2020.', a:'PPC', o:['PPC','PP','PAC','PC'],
+  clue:'since 2020', f:'HAVE BEEN + verbe-ING', why:"Since + point de départ précis (2020, Monday, 8 a.m.). Insiste sur la durée → Perfect Continuous."},
+ {s:'Yesterday, the CEO <b class="hl">announced</b> the merger.', a:'PAS', o:['PAS','PP','PAP','PASS'],
+  clue:'yesterday', f:'verbe + ED / irrégulier', why:"\"Yesterday\" = marqueur absolu du Past Simple. Jamais de present perfect avec yesterday !"},
+ {s:'Look at those clouds! It <b class="hl">is going to rain</b>.', a:'GOI', o:['GOI','FUT','PC','PS'],
+  clue:'prédiction avec indices visibles', f:'BE GOING TO + verbe', why:"Prédiction basée sur des preuves visibles (les nuages) = going to. Q53 de ton exam : \"oil stocks are running out → the price is going to rise\"."},
+ {s:'The contract <b class="hl">cannot be changed</b> now.', a:'PASS', o:['PASS','MOD','PC','PS'],
+  clue:'modal + be + p.p.', f:'MODAL + BE + participe passé', why:"Q2 de ton examen ! Modal passif : modal + BE + participe passé. \"It cannot be changed\"."},
+ {s:'He usually <b class="hl">takes</b> the train to work.', a:'PS', o:['PS','PC','PP','GOI'],
+  clue:'usually', f:'infinitif (+S 3e pers.)', why:"\"Usually, always, often, every day\" = habitude = Present Simple."},
+ {s:'When I saw her, she <b class="hl">was talking</b> on the phone.', a:'PAC', o:['PAC','PAS','PPC','PAP'],
+  clue:'action en cours interrompue', f:'WAS/WERE + verbe-ING', why:"L'action longue (talking) était en cours quand l'action courte (saw) est arrivée."},
+ {s:'I <b class="hl">have never been</b> to Japan.', a:'PP', o:['PP','PAS','PAP','PS'],
+  clue:'never (expérience de vie)', f:'HAVE/HAS + participe passé', why:"Expérience de vie (jusqu'à maintenant) : never, ever, before = Present Perfect."},
+ {s:'If I <b class="hl">were</b> richer, I wouldn\u2019t work at all.', a:'CD2', o:['CD2','CD3','PAS','PS'],
+  clue:'situation imaginaire', f:'If + past simple → would', why:"Q55 de ton exam (variante) ! Imaginaire au présent : if + past → would. Note : \"if I were\" (pas was) en anglais formel."},
+ {s:'The report <b class="hl">will be published</b> next week.', a:'PASS', o:['PASS','FUT','GOI','PP'],
+  clue:'will + be + p.p.', f:'WILL BE + participe passé', why:"Futur passif : will + be + participe passé. Le rapport subit l'action."},
+ {s:'We <b class="hl">had been waiting</b> for two hours when the train finally came.', a:'PAP', o:['PAP','PAC','PPC','PAS'],
+  clue:'durée avant une action passée', f:'HAD BEEN + verbe-ING', why:"Past Perfect Continuous : durée AVANT une autre action passée. had been + -ing."},
+ {s:'She <b class="hl">works</b> for an accounting firm in Brussels.', a:'PS', o:['PS','PC','PP','PASS'],
+  clue:'situation permanente', f:'infinitif (+S 3e pers.)', why:"Situation stable/permanente (son métier) = Present Simple, même si c'est \"en ce moment\" dans la vie."}
+];
+
+// ===================== DATA : EXAM-STYLE MCQ =====================
+var Q2 = [
+ {s:'We <span class="blank">____</span> the order yesterday but we haven\u2019t received it yet.',
+  o:['had promised','promised','were promised','had been promised'], a:2,
+  f:'yesterday → Past Simple PASSIF ? Non : ici actif impossible...', why:"Q29 de ton examen ! \"We were promised the order\" = on NOUS a promis la commande (passif). \"Yesterday\" → past, et le sens exige le passif : ce n'est pas nous qui promettons. Réponse C."},
+ {s:'We <span class="blank">____</span> a training manager <span class="blank">____</span> a long time.',
+  o:['didn\u2019t have / since','haven\u2019t had / since','did not have / during','haven\u2019t had / for'], a:3,
+  f:'FOR + durée · SINCE + point de départ', why:"Q48 de ton examen ! Situation qui continue jusqu'à maintenant → present perfect. \"A long time\" = durée → FOR. Since = point précis (since 2020)."},
+ {s:'Before Eurostar trains started, you <span class="blank">____</span> get to Paris in under 3 hours. Now you <span class="blank">____</span> do it in around two.',
+  o:['couldn\u2019t / can','can\u2019t / could','couldn\u2019t / could','can / can'], a:0,
+  f:'could = passé de can', why:"Q20 de ton examen ! Avant (passé) → couldn't. Maintenant (présent) → can. Logique temporelle simple mais piégeuse sous stress."},
+ {s:'Oil stocks are running out, so obviously the price of petrol <span class="blank">____</span>.',
+  o:['is going to rise','will be increased','will raise','is going to decrease'], a:0,
+  f:'prédiction avec preuves → GOING TO', why:"Q53 de ton examen ! Prédiction basée sur une évidence présente (\"are running out\") → going to. Attention : RISE = monter (intransitif), RAISE = augmenter qqch (transitif)."},
+ {s:'If I <span class="blank">____</span> richer when I was younger, I <span class="blank">____</span> at all. I hate working!',
+  o:['had been / wouldn\u2019t have worked','would be / would have worked','were / wouldn\u2019t work','have been / would work'], a:0,
+  f:'If + past perfect → would have + p.p.', why:"Q55 de ton examen ! \"When I was younger\" = passé → conditionnel 3 : if + past perfect → would have + participe passé. Jamais de would dans la partie if !"},
+ {s:'You have signed the contract. It cannot <span class="blank">____</span> now.',
+  o:['be changing','be changed','have changed','change'], a:1,
+  f:'MODAL + BE + participe passé', why:"Q2 de ton examen ! Le contrat SUBIT l'action → passif. Modal passif = modal + be + p.p. → \"cannot be changed\"."},
+ {s:'She <span class="blank">____</span> in this company since she graduated.',
+  o:['works','is working','has worked','worked'], a:2,
+  f:'SINCE → present perfect', why:"\"Since\" + action qui continue = present perfect. \"Has worked\" (ou has been working)."},
+ {s:'While I <span class="blank">____</span> to the lecture, my phone suddenly rang.',
+  o:['listened','was listening','have listened','had listened'], a:1,
+  f:'WHILE → past continuous', why:"Action en cours (longue) interrompue par une action courte (rang) → past continuous."},
+ {s:'By the time the professor arrived, all the students <span class="blank">____</span>.',
+  o:['left','have left','had left','were leaving'], a:2,
+  f:'action AVANT une action passée → past perfect', why:"\"By the time + passé\" : les étudiants sont partis AVANT l'arrivée → had left."},
+ {s:'Look out! That shelf <span class="blank">____</span> on your head!',
+  o:['will fall','is going to fall','falls','is falling'], a:1,
+  f:'preuve visible → going to', why:"Prédiction immédiate basée sur ce qu'on voit → going to fall."},
+ {s:'I <span class="blank">____</span> my homework yet.',
+  o:['didn\u2019t finish','haven\u2019t finished','hadn\u2019t finished','don\u2019t finish'], a:1,
+  f:'YET → present perfect', why:"\"Yet, already, just\" = signaux du present perfect → haven't finished."},
+ {s:'The new factory <span class="blank">____</span> by a Japanese company last year.',
+  o:['built','was built','has been built','is built'], a:1,
+  f:'BY + agent, last year → past passive', why:"\"By a company\" → passif. \"Last year\" → past. Was/were + p.p. = past passive."},
+ {s:'If it <span class="blank">____</span> tomorrow, we will cancel the barbecue.',
+  o:['will rain','rained','rains','would rain'], a:2,
+  f:'conditionnel 1 : if + PRÉSENT', why:"JAMAIS de will après if ! Conditionnel 1 : if + présent simple → will dans l'autre partie."},
+ {s:'Sorry I\u2019m late — <span class="blank">____</span> long?',
+  o:['do you wait','have you been waiting','did you wait','are you waiting'], a:1,
+  f:'durée jusqu\u2019à maintenant → perfect continuous', why:"L'attente a commencé avant et continue jusqu'à maintenant, accent sur la durée → have you been waiting."},
+ {s:'This is the first time I <span class="blank">____</span> sushi.',
+  o:['eat','ate','have eaten','am eating'], a:2,
+  f:'first time → present perfect', why:"\"It's the first time...\" = toujours present perfect en anglais (alors qu'en français on dit \"que je mange\")."},
+ {s:'The results <span class="blank">____</span> to the students next Monday.',
+  o:['will send','will be sent','are sending','have sent'], a:1,
+  f:'futur passif : will be + p.p.', why:"Les résultats subissent l'action (on les envoie) → futur passif : will be sent."},
+ {s:'She <span class="blank">____</span> her keys, so she can\u2019t open the door now.',
+  o:['lost','has lost','had lost','was losing'], a:1,
+  f:'conséquence présente → present perfect', why:"L'action passée a une conséquence MAINTENANT (can't open) → present perfect. C'est LE piège pour les francophones."},
+ {s:'When we lived in London, we <span class="blank">____</span> the museum every Sunday.',
+  o:['visited','have visited','were visiting','had visited'], a:0,
+  f:'habitude passée terminée → past simple', why:"Habitude dans un passé révolu et délimité (\"when we lived\") → past simple. Le present perfect est impossible : la période est finie."},
+ {s:'If I <span class="blank">____</span> you, I would revise the conditionals tonight.',
+  o:['am','was','were','had been'], a:2,
+  f:'if I were you (conseil)', why:"Expression figée de conseil : \"If I were you\" — toujours WERE, même à la 1re personne."},
+ {s:'The company\u2019s profits <span class="blank">____</span> steadily over the past few years.',
+  o:['rose','have risen','had risen','rise'], a:1,
+  f:'over the past few years → present perfect', why:"\"Over the past few years\" = période qui touche le présent → present perfect. C'est dans ta fiche : since, for, already, just, yet, over the past few years."}
+];
+
+// ===================== DATA : TIPS =====================
+var TIPS = [
+ {t:'La carte mentale des 3 formules',h:'<span class="f">TO BE + -ING → temps CONTINUS</span><span class="f">TO HAVE + participe passé → temps PERFECT</span><span class="f">TO BE + participe passé → voix PASSIVE</span>Avec ces 3 formules tu reconstruis TOUS les temps. Conjugue l\u2019auxiliaire au présent ou au passé pour changer d\u2019époque. <span class="ex">am playing / was playing · have played / had played · is made / was made</span>'},
+ {t:'Les mots-signaux (les indices qui trahissent le temps)',h:'<ul><li><span class="mk">yesterday, last year, in 2010, ago</span> → <b>Past Simple</b></li><li><span class="mk">now, at the moment, Look!</span> → <b>Present Continuous</b></li><li><span class="mk">just, already, yet, ever, never, since, for, over the past few years</span> → <b>Present Perfect</b></li><li><span class="mk">since 8 a.m. + accent sur la durée</span> → <b>Present Perfect Continuous</b></li><li><span class="mk">while, when + action interrompue</span> → <b>Past Continuous</b></li><li><span class="mk">before, after, by the time</span> (entre 2 actions passées) → <b>Past Perfect</b></li><li><span class="mk">always, usually, every day</span> → <b>Present Simple</b></li></ul>'},
+ {t:'SINCE vs FOR (le grand classique)',h:'<span class="f">SINCE + point de départ précis · FOR + durée</span><ul><li><span class="ex">since 2020, since Monday, since 8 a.m., since she graduated</span></li><li><span class="ex">for 2 hours, for a long time, for years</span></li></ul><span class="warn">Q48 de ton exam :</span> "We haven\u2019t had a training manager <b>for</b> a long time" — durée → FOR, et present perfect car ça dure encore.'},
+ {t:'Present Perfect ≠ Passé composé (LE piège francophone)',h:'La forme ressemble au passé composé mais l\u2019usage est totalement différent. Le present perfect = action passée <span class="mk">avec un lien au présent</span>.<ul><li><span class="ex">She has lost her keys → elle ne peut pas entrer MAINTENANT</span></li><li><span class="ex">I visited London last year</span> → moment précis terminé = <b>past simple</b>, jamais perfect !</li></ul><span class="warn">Règle d\u2019or : si tu peux dire QUAND précisément (yesterday, in 2010), c\u2019est PAST SIMPLE.</span> Et en anglais c\u2019est toujours HAVE, jamais BE : <span class="ex">I have fallen</span> (pas "I am fallen").'},
+ {t:'Les 3 conditionnels en 10 secondes',h:'<span class="f">1 — Réel : If + présent → WILL</span><span class="ex">If it rains, we will cancel the barbecue.</span><span class="f">2 — Imaginaire présent : If + past simple → WOULD</span><span class="ex">If you found a wallet, would you hand it in?</span><span class="f">3 — Regret du passé : If + past perfect → WOULD HAVE + p.p.</span><span class="ex">If only I had waited, I wouldn\u2019t have missed her.</span><span class="warn">JAMAIS will/would dans la partie "if" !</span>'},
+ {t:'WILL vs GOING TO',h:'<ul><li><span class="mk">WILL</span> = décision prise sur le moment, promesse. <span class="ex">OK, I will help you.</span></li><li><span class="mk">GOING TO</span> = plan déjà décidé OU prédiction avec preuves visibles. <span class="ex">I am going to study tonight. / Oil stocks are running out → the price is going to rise (Q53 !)</span></li></ul>'},
+ {t:'La voix passive (et le modal passif de la Q2)',h:'<span class="f">BE + participe passé (+ by agent)</span>Le sujet SUBIT l\u2019action. Conjugue BE pour changer le temps :<ul><li><span class="ex">is made (présent) · was built (passé) · will be sent (futur) · has been done (perfect)</span></li></ul><span class="f">Modal passif : MODAL + BE + participe passé</span><span class="ex">The contract cannot be changed. (Q2 de ton exam !)</span><span class="ex">The homework should be finished.</span>'},
+ {t:'SHOULD(N\u2019T) HAVE + p.p. — le regret',h:'<span class="f">should have + participe passé = regret · shouldn\u2019t have + p.p. = critique</span><ul><li><span class="ex">You shouldn\u2019t have said that.</span> (tu n\u2019aurais pas dû)</li><li><span class="ex">I should have studied earlier.</span> (j\u2019aurais dû...)</li></ul>'},
+ {t:'Pronoms relatifs : which / that / who / whom',h:'<ul><li><span class="mk">WHICH</span> → choses, souvent <b>avec virgules</b> (info bonus). <span class="ex">The product, which is famous, sells well.</span></li><li><span class="mk">THAT</span> → info essentielle, <b>pas après une virgule</b>. <span class="ex">The product that I bought is expensive.</span></li><li><span class="mk">WHO</span> = sujet · <span class="mk">WHOM</span> = complément. <span class="ex">The man who called me / The woman whom I met.</span></li></ul><span class="warn">Q14 de ton exam : "Our main product, ___ is sold worldwide" → virgule → WHICH.</span>'},
+ {t:'RISE vs RAISE (piège de la Q53)',h:'<ul><li><span class="mk">RISE</span> (rose, risen) = monter, intransitif (pas de complément). <span class="ex">Prices rise.</span></li><li><span class="mk">RAISE</span> (raised) = augmenter QUELQUE CHOSE, transitif. <span class="ex">They raised prices.</span></li></ul>"The price will raise" est donc FAUX → "is going to rise".'},
+ {t:'Stratégie examen (QCM, 1 pt / bonne réponse, 0 si erreur)',h:'<ul><li>1. <span class="mk">Cherche le mot-signal</span> dans la phrase AVANT de regarder les options (yesterday ? since ? while ? virgule ?).</li><li>2. <span class="mk">Élimine</span> les options grammaticalement impossibles (will après if, perfect avec yesterday...).</li><li>3. Pour les doubles blancs (Q48, Q55), <span class="mk">vérifie les DEUX parties</span> — une seule fausse élimine l\u2019option.</li><li>4. Pas d\u2019abstention pénalisée différemment de l\u2019erreur ? Vérifie le barème — si 0 dans les deux cas, <span class="mk">réponds toujours</span>.</li><li>5. Méfie-toi de la traduction littérale du français : le present perfect n\u2019existe pas en français !</li></ul>'}
+];
+
+// ===================== ENGINE =====================
+var xp=0, good=0, total=0, streak=0;
+function updStats(){
+  document.getElementById('stXp').textContent=xp;
+  document.getElementById('stStreak').textContent=streak;
+  document.getElementById('stAcc').textContent= total? Math.round(good/total*100)+'%':'--%';
+}
+function comboFx(){
+  if(streak<2) return;
+  var c=document.getElementById('combo');
+  c.textContent='COMBO x'+streak;
+  c.classList.remove('go'); void c.offsetWidth; c.classList.add('go');
+}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+// ---- Mode 1 ----
+var deck1=shuffle(Q1.slice()), i1=0;
+function render1(){
+  if(i1>=deck1.length){deck1=shuffle(Q1.slice());i1=0}
+  var q=deck1[i1];
+  document.getElementById('prog1').style.width=(i1/deck1.length*100)+'%';
+  document.getElementById('q1s').innerHTML=q.s;
+  var box=document.getElementById('q1o'); box.innerHTML='';
+  document.getElementById('q1f').className='fb';
+  document.getElementById('q1e').className='explain';
+  document.getElementById('q1n').className='next';
+  var opts=shuffle(q.o.slice());
+  opts.forEach(function(k,idx){
+    var d=document.createElement('div'); d.className='opt';
+    d.innerHTML='<span class="k">'+String.fromCharCode(65+idx)+'</span>'+T[k];
+    d.onclick=function(){answer1(d,k,q)};
+    box.appendChild(d);
+  });
+}
+function answer1(el,k,q){
+  total++;
+  var box=document.getElementById('q1o');
+  Array.prototype.forEach.call(box.children,function(c){c.classList.add('lock')});
+  var win = (k===q.a);
+  if(win){ el.classList.add('good'); good++; streak++; xp+=10+streak*2; comboFx(); }
+  else{
+    el.classList.add('bad'); streak=0;
+    Array.prototype.forEach.call(box.children,function(c){
+      if(c.textContent.indexOf(T[q.a])>-1) c.classList.add('good');
+    });
+  }
+  var f=document.getElementById('q1f');
+  f.textContent= win? '◤ CORRECT — +'+(10+streak*2)+' XP':'◢ RATÉ';
+  f.className='fb show '+(win?'win':'lose');
+  var e=document.getElementById('q1e');
+  e.innerHTML='<span class="formula">'+q.f+'</span>Indice : <span class="clue">'+q.clue+'</span> — '+q.why;
+  e.className='explain show';
+  document.getElementById('q1n').className='next show';
+  updStats();
+}
+document.getElementById('q1n').onclick=function(){i1++;render1()};
+
+// ---- Mode 2 ----
+var deck2=shuffle(Q2.slice()), i2=0;
+function render2(){
+  if(i2>=deck2.length){deck2=shuffle(Q2.slice());i2=0}
+  var q=deck2[i2];
+  document.getElementById('prog2').style.width=(i2/deck2.length*100)+'%';
+  document.getElementById('q2s').innerHTML=q.s;
+  var box=document.getElementById('q2o'); box.innerHTML='';
+  document.getElementById('q2f').className='fb';
+  document.getElementById('q2e').className='explain';
+  document.getElementById('q2n').className='next';
+  q.o.forEach(function(txt,idx){
+    var d=document.createElement('div'); d.className='opt';
+    d.innerHTML='<span class="k">'+String.fromCharCode(97+idx)+')</span>'+txt;
+    d.onclick=function(){answer2(d,idx,q)};
+    box.appendChild(d);
+  });
+}
+function answer2(el,idx,q){
+  total++;
+  var box=document.getElementById('q2o');
+  Array.prototype.forEach.call(box.children,function(c){c.classList.add('lock')});
+  var win=(idx===q.a);
+  if(win){ el.classList.add('good'); good++; streak++; xp+=15+streak*2; comboFx(); }
+  else{ el.classList.add('bad'); streak=0; box.children[q.a].classList.add('good'); }
+  var f=document.getElementById('q2f');
+  f.textContent= win? '◤ CORRECT — +'+(15+streak*2)+' XP':'◢ RATÉ';
+  f.className='fb show '+(win?'win':'lose');
+  var e=document.getElementById('q2e');
+  e.innerHTML='<span class="formula">'+q.f+'</span>'+q.why;
+  e.className='explain show';
+  document.getElementById('q2n').className='next show';
+  updStats();
+}
+document.getElementById('q2n').onclick=function(){i2++;render2()};
+
+// ---- Tips ----
+var tbox=document.getElementById('tips');
+TIPS.forEach(function(t,i){
+  var d=document.createElement('div'); d.className='tip';
+  d.innerHTML='<div class="tip-h"><span class="tip-num">'+String(i+1).padStart(2,'0')+'</span><h3>'+t.t+'</h3><span class="arr">▶</span></div><div class="tip-b">'+t.h+'</div>';
+  d.querySelector('.tip-h').onclick=function(){d.classList.toggle('open')};
+  tbox.appendChild(d);
+});
+
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(function(tb){
+  tb.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('on')});
+    tb.classList.add('on');
+    document.getElementById(tb.dataset.p).classList.add('on');
+  };
+});
+
+render1(); render2(); updStats();
+</script>
+</body>
+</html>
